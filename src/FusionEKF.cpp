@@ -52,19 +52,11 @@ FusionEKF::FusionEKF() {
     R_radar_ << b1,0,0,
             0,b5/10,0,
             0,0,b9/10;
-            */
-
-
-
-
 
     R_radar_ << 0.361,0,0,
             0,0.0019,0,
             0,0,0.0599;
-
-
-
-
+            */
 
 
     /**
@@ -97,10 +89,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      *  Initialization
      ****************************************************************************/
 
-    if (fabs(measurement_pack.raw_measurements_[0]) < 0.0001 or fabs(measurement_pack.raw_measurements_[1]) < 0.0001) {
-        cout << "Measure error! Skip to next measurement." << endl;
-        return;
-    }
     if (!is_initialized_) {
         /**
         TODO:
@@ -125,7 +113,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
 
             //Initialize the state ekf_.x_ with the first measurement
-            ekf_.x_ << x_position, y_position, 1, 1;
+            ekf_.x_ << x_position, y_position, 0, 0;
 
 
         }
@@ -136,7 +124,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             x_position = measurement_pack.raw_measurements_[0];
             y_position = measurement_pack.raw_measurements_[1];
             //Initialize the state ekf_.x_ with the first measurement
-            ekf_.x_ << x_position, y_position, 1, 1;
+            ekf_.x_ << x_position, y_position, 0, 0;
         }
 
 
@@ -206,7 +194,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         // radar updates
         Hj_ = tools.CalculateJacobian(ekf_.x_);
         ekf_.Init(ekf_.x_, ekf_.P_, ekf_.F_, Hj_, R_radar_, ekf_.Q_);
-        ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+        //cout << "ekf_.x_[0]=" << ekf_.x_[0] <<endl;
+        //cout << "ekf_.x_[1]=" << ekf_.x_[1] <<endl;
+        if (ekf_.x_[1]>0.05)
+        {
+            ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+        }
     } else {
         // laser updates
         ekf_.Init(ekf_.x_, ekf_.P_, ekf_.F_, ekf_.H_, R_laser_, ekf_.Q_);
