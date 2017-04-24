@@ -113,7 +113,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
 
             //Initialize the state ekf_.x_ with the first measurement
-            ekf_.x_ << x_position, y_position, 0, 0;
+            ekf_.x_ << x_position, y_position, 1, 1;
 
 
         }
@@ -124,7 +124,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             x_position = measurement_pack.raw_measurements_[0];
             y_position = measurement_pack.raw_measurements_[1];
             //Initialize the state ekf_.x_ with the first measurement
-            ekf_.x_ << x_position, y_position, 0, 0;
+            ekf_.x_ << x_position, y_position, 1, 1;
         }
 
 
