@@ -53,10 +53,12 @@ FusionEKF::FusionEKF() {
             0,b5/10,0,
             0,0,b9/10;
 
+
     R_radar_ << 0.361,0,0,
             0,0.0019,0,
             0,0,0.0599;
             */
+
 
 
     /**
@@ -176,7 +178,11 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
 
     // Call the Kalman Filter predict() function.
-    ekf_.Predict();
+    if ( dt > 0.001 )
+    {
+        ekf_.Predict();
+    }
+    //ekf_.Predict();
 
     /*****************************************************************************
      *  Update
@@ -196,6 +202,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         ekf_.Init(ekf_.x_, ekf_.P_, ekf_.F_, Hj_, R_radar_, ekf_.Q_);
         //cout << "ekf_.x_[0]=" << ekf_.x_[0] <<endl;
         //cout << "ekf_.x_[1]=" << ekf_.x_[1] <<endl;
+
         if (ekf_.x_[1]>0.05)
         {
             ekf_.UpdateEKF(measurement_pack.raw_measurements_);

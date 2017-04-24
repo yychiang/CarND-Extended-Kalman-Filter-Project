@@ -70,19 +70,30 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   double rhorate= (x_(0)*x_(2) + x_(1)*x_[3])/sqrt((x_(0)*x_(0) + x_(1)*x_(1)));
 
   // z_pred_radar: using above non-linear equations instead of H
-  MatrixXd  z_pred_radar(3, 1);
-  z_pred_radar << rho, phi, rhorate;
+    MatrixXd  z_pred_radar(3, 1);
+    z_pred_radar << rho, phi, rhorate;
 
-  VectorXd y = z - z_pred_radar;
-  MatrixXd Ht = H_.transpose();
-  MatrixXd S = H_ * P_ * Ht + R_;
-  MatrixXd Si = S.inverse();
-  MatrixXd PHt = P_ * Ht;
-  MatrixXd K = PHt * Si;
+    VectorXd y = z - z_pred_radar;
 
-  //new estimate
-  x_ = x_ + (K * y);
-  size_t x_size = x_.size();
-  MatrixXd I = MatrixXd::Identity(x_size, x_size);
-  P_ = (I - K * H_) * P_;
+    /*
+    MatrixXd Ht = H_.transpose();
+     MatrixXd S = H_ * P_ * Ht + R_;
+    MatrixXd Si = S.inverse();
+    MatrixXd PHt = P_ * Ht;
+    MatrixXd K = PHt * Si;
+     */
+
+    //So instead of calculating the transpose of H_ twice we do it just once,
+    // and there are only 3 matrix multiplications instead of 4.
+
+    MatrixXd Ht = H_.transpose();
+    MatrixXd PHt = P_ * Ht;
+    MatrixXd S = H_ * PHt + R_;
+    MatrixXd K = PHt * S.inverse();
+
+    //new estimate
+    x_ = x_ + (K * y);
+    size_t x_size = x_.size();
+    MatrixXd I = MatrixXd::Identity(x_size, x_size);
+    P_ = (I - K * H_) * P_;
 }
